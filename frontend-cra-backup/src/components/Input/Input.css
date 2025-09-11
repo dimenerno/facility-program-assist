@@ -1,0 +1,91 @@
+/* Input container */
+.input-container {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+/* Input label */
+.input-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+/* Input wrapper */
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Base input styles */
+.input {
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #111827;
+  outline: none;
+  font-family: inherit;
+  transition: color 0.2s ease-in-out;
+}
+
+.input::placeholder {
+  color: #9CA3AF;
+  font-size: 16px;
+}
+
+.input:disabled {
+  color: #9CA3AF;
+  cursor: not-allowed;
+}
+
+/* Input underline */
+.input-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #D1D5DB;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.input-underline--focused {
+  background-color: #4285F4;
+  height: 2px;
+}
+
+/* Focused state */
+.input--focused {
+  color: #111827;
+}
+
+/* Error state */
+.input--error .input-underline {
+  background-color: #EF4444;
+}
+
+.input--error .input-underline--focused {
+  background-color: #EF4444;
+}
+
+/* Error message */
+.input-error {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #EF4444;
+  text-align: left;
+}
+
+/* Disabled state */
+.input--disabled .input-underline {
+  background-color: #E5E7EB;
+}
+
+.input--disabled .input-underline--focused {
+  background-color: #E5E7EB;
+}

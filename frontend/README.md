@@ -1,60 +1,69 @@
-# Facility Assist Frontend
+# React + TypeScript + Vite
 
-React TypeScript frontend for the Facility Assist military unit task management system.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Features
+Currently, two official plugins are available:
 
-- **Button Component**: Four different button types (normal, positive, negative, strong)
-- **TypeScript**: Full type safety and better development experience
-- **Responsive Design**: Mobile-friendly layout
-- **Modern CSS**: Clean, accessible styling with hover effects and focus states
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Button Types
+## Expanding the ESLint configuration
 
-1. **Normal**: Neutral gray button for general actions
-2. **Positive**: Light blue button for positive actions (submit, save)
-3. **Negative**: Light red button for destructive actions (delete, cancel)
-4. **Strong**: Solid blue button for primary actions (confirm, proceed)
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-## Getting Started
+```js
+export default tseslint.config([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+      // Remove tseslint.configs.recommended and replace with this
+      ...tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      ...tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      ...tseslint.configs.stylisticTypeChecked,
 
-2. Start the development server:
-   ```bash
-   npm start
-   ```
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
 
-3. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-## Available Scripts
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-- `npm start` - Runs the app in development mode
-- `npm build` - Builds the app for production
-- `npm test` - Launches the test runner
-- `npm eject` - Ejects from Create React App (one-way operation)
-
-## Button Usage
-
-```tsx
-import Button from './components/Button';
-
-// Basic usage
-<Button type="normal" onClick={() => console.log('clicked')}>
-  Click me
-</Button>
-
-// All button types
-<Button type="normal">Normal</Button>
-<Button type="positive">Positive</Button>
-<Button type="negative">Negative</Button>
-<Button type="strong">Strong</Button>
-
-// Disabled state
-<Button type="strong" disabled>
-  Disabled
-</Button>
+export default tseslint.config([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```

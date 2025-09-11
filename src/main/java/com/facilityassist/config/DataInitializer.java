@@ -27,6 +27,9 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("Starting data initialization...");
         
+        // Initialize test admin user
+        initializeTestAdmin();
+        
         // Initialize units and managers
         initializeUnitsAndManagers();
         
@@ -114,5 +117,24 @@ public class DataInitializer implements CommandLineRunner {
 
         manager = userRepository.save(manager);
         log.info("Created manager: {} for unit: {}", manager.getName(), unit.getName());
+    }
+
+    private void initializeTestAdmin() {
+        // Check if test admin already exists
+        if (userRepository.existsByUsername("admin")) {
+            log.debug("Test admin user already exists, skipping...");
+            return;
+        }
+
+        // Create test admin user
+        User admin = User.builder()
+            .username("admin")
+            .name("시스템 관리자")
+            .passwordHash(passwordEncoder.encode("admin"))
+            .role(UserRole.ADMIN)
+            .build();
+
+        admin = userRepository.save(admin);
+        log.info("Created test admin user: {} (username: admin, password: admin)", admin.getName());
     }
 }

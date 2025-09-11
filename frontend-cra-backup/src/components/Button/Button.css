@@ -1,0 +1,126 @@
+/* Base button styles */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+  min-height: 44px;
+  min-width: 80px;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.button:focus-visible {
+  outline: 2px solid #4285F4;
+  outline-offset: 2px;
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+/* Normal button (neutral) */
+.button--normal {
+  background-color: #F0F0F0;
+  color: #5C5C5C;
+}
+
+.button--normal:hover:not(:disabled) {
+  background-color: #E0E0E0;
+  color: #404040;
+}
+
+/* Positive button */
+.button--positive {
+  background-color: #E0EBF7;
+  color: #4285F4;
+}
+
+.button--positive:hover:not(:disabled) {
+  background-color: #D1E3F5;
+  color: #3367D6;
+}
+
+/* Negative button */
+.button--negative {
+  background-color: #FCE8E6;
+  color: #DB4437;
+}
+
+.button--negative:hover:not(:disabled) {
+  background-color: #FADBD8;
+  color: #C23321;
+}
+
+/* Strong button */
+.button--strong {
+  background-color: #4285F4;
+  color: #FFFFFF;
+}
+
+.button--strong:hover:not(:disabled) {
+  background-color: #3367D6;
+  color: #FFFFFF;
+}
+
+/* Disabled state */
+.button--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.button--disabled:hover {
+  background-color: inherit !important;
+  color: inherit !important;
+}
+
+/* Loading state (for future use) */
+.button--loading {
+  pointer-events: none;
+}
+
+.button--loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: button-loading-spinner 1s ease infinite;
+}
+
+@keyframes button-loading-spinner {
+  from {
+    transform: rotate(0turn);
+  }
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* Size variants (for future use) */
+.button--small {
+  padding: 8px 16px;
+  font-size: 12px;
+  min-height: 36px;
+  min-width: 64px;
+}
+
+.button--large {
+  padding: 16px 32px;
+  font-size: 16px;
+  min-height: 52px;
+  min-width: 96px;
+}
