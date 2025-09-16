@@ -1,7 +1,7 @@
 /* Login page container */
 .login-page {
   min-height: 100vh;
-  background-color: #F3F4F6;
+  background-color: var(--background-color);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -128,3 +128,49 @@ export const getAllDocuments = async (): Promise<DocumentListResponse | null> =>
   }
 };
 
+// Upload Document Request Type
+export interface UploadDocumentRequest {
+  title: string;
+  description?: string;
+  file: File;
+}
+
+/**
+ * Upload a new document
+ * @param request UploadDocumentRequest containing title, description and file
+ * @returns Promise<DocumentDetail | null>
+ */
+export const uploadDocument = async (request: UploadDocumentRequest): Promise<DocumentDetail | null> => {
+  try {
+    const formData = new FormData();
+    formData.append('title', request.title);
+    if (request.description) {
+      formData.append('description', request.description);
+    }
+    formData.append('file', request.file);
+
+    const response = await fetch(`${API_BASE_URL}/documents`, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      console.error('Failed to upload document:', response.status, response.statusText);
+      return null;
+    }
+
+    const result: ApiResponse<DocumentDetail> = await response.json();
+
+    if (result.success && result.data) {
+      return result.data;
+    } else {
+      console.error('API returned error:', result.message);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error uploading document:', error);
+    return null;
+  }
+};
+

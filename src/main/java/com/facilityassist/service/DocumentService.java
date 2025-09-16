@@ -2,15 +2,23 @@ package com.facilityassist.service;
 
 import com.facilityassist.dto.DocumentListResponse;
 import com.facilityassist.dto.DocumentResponse;
+import com.facilityassist.dto.UploadDocumentRequest;
 import com.facilityassist.model.Document;
+import com.facilityassist.model.User;
 import com.facilityassist.repository.DocumentRepository;
+import com.facilityassist.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +33,7 @@ import java.util.stream.Collectors;
 public class DocumentService {
     
     private final DocumentRepository documentRepository;
+    private final UserRepository userRepository;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     
     /**
@@ -192,6 +201,65 @@ public class DocumentService {
         }
         
         return String.format("%.1f %s", size, units[unitIndex]);
+    }
+    
+    /**
+     * Upload a new document
+     * @param request UploadDocumentRequest containing title, description and file
+     * @return DocumentResponse of the uploaded document
+     */
+    @Transactional
+    public DocumentResponse uploadDocument(UploadDocumentRequest request) {
+        try {
+            log.info("Uploading new document with title: {}", request.getTitle());
+            
+            // Get current authenticated user
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                throw new RuntimeException("인증되지 않은 사용자입니다.");
+            }
+            
+            String username = authentication.getName();
+            User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + username));
+            
+            MultipartFile file = request.getFile();
+            
+            // Validate file
+            if (file.isEmpty()) {
+                throw new RuntimeException("파일이 비어있습니다.");
+            }
+            
+            // Check file size (max 10MB)
+            if (file.getSize() > 10 * 1024 * 1024) {
+                throw new RuntimeException("파일 크기는 10MB를 초과할 수 없습니다.");
+            }
+            
+            // Create new document
+            Document document = Document.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .fileName(file.getOriginalFilename())
+                .fileType(file.getContentType())
+                .fileSize(file.getSize())
+                .fileContent(file.getBytes())
+                .uploadedBy(currentUser)
+                .build();
+            
+            // Save document
+            Document savedDocument = documentRepository.save(document);
+            log.info("Successfully uploaded document with ID: {}", savedDocument.getId());
+            
+            // Convert to response
+            return convertToDocumentResponse(savedDocument);
+            
+        } catch (IOException e) {
+            log.error("Error reading file content", e);
+            throw new RuntimeException("파일을 읽는 중 오류가 발생했습니다.", e);
+        } catch (Exception e) {
+            log.error("Error uploading document", e);
+            throw new RuntimeException("문서 업로드 중 오류가 발생했습니다.", e);
+        }
     }
 }
 

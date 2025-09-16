@@ -1,11 +1,9 @@
 package com.facilityassist.config;
 
-import com.facilityassist.model.Document;
 import com.facilityassist.model.Notice;
 import com.facilityassist.model.Unit;
 import com.facilityassist.model.User;
 import com.facilityassist.model.UserRole;
-import com.facilityassist.repository.DocumentRepository;
 import com.facilityassist.repository.NoticeRepository;
 import com.facilityassist.repository.UnitRepository;
 import com.facilityassist.repository.UserRepository;
@@ -26,7 +24,6 @@ public class DataInitializer implements CommandLineRunner {
     private final UnitRepository unitRepository;
     private final UserRepository userRepository;
     private final NoticeRepository noticeRepository;
-    private final DocumentRepository documentRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -41,9 +38,6 @@ public class DataInitializer implements CommandLineRunner {
         
         // Initialize sample notices
         initializeSampleNotices();
-        
-        // Initialize sample documents
-        initializeSampleDocuments();
         
         log.info("Data initialization completed successfully!");
     }
@@ -275,116 +269,4 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Created {} sample notices", sampleNotices.size());
     }
 
-    private void initializeSampleDocuments() {
-        // Check if documents already exist
-        if (documentRepository.count() > 0) {
-            log.debug("Sample documents already exist, skipping...");
-            return;
-        }
-
-        // Get admin user to be the uploader of documents
-        User adminUser = userRepository.findByUsername("admin").orElse(null);
-        if (adminUser == null) {
-            log.warn("Admin user not found, skipping document initialization");
-            return;
-        }
-
-        // Sample document data (moved from frontend)
-        List<Document> sampleDocuments = Arrays.asList(
-            Document.builder()
-                .title("시설물 점검 매뉴얼 v2.1")
-                .description("2024년 업데이트된 시설물 점검 매뉴얼입니다. 새로운 점검 항목과 안전 수칙이 포함되어 있습니다.")
-                .fileName("facility_inspection_manual_v2.1.pdf")
-                .fileType("application/pdf")
-                .fileSize(2048576L) // 2MB
-                .fileContent("PDF content placeholder".getBytes())
-                .uploadedBy(adminUser)
-                .build(),
-            Document.builder()
-                .title("시설물 안전관리 규정")
-                .description("시설물 안전관리 규정 개정본입니다. 2024년 2월 1일부터 시행됩니다.")
-                .fileName("facility_safety_regulations_2024.pdf")
-                .fileType("application/pdf")
-                .fileSize(1536000L) // 1.5MB
-                .fileContent("PDF content placeholder".getBytes())
-                .uploadedBy(adminUser)
-                .build(),
-            Document.builder()
-                .title("시설물 등록 신청서")
-                .description("신규 시설물 등록 시 사용하는 신청서 양식입니다.")
-                .fileName("facility_registration_form.docx")
-                .fileType("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-                .fileSize(512000L) // 500KB
-                .fileContent("DOCX content placeholder".getBytes())
-                .uploadedBy(adminUser)
-                .build(),
-            Document.builder()
-                .title("시설물 점검 체크리스트")
-                .description("시설물 점검 시 사용하는 체크리스트 양식입니다.")
-                .fileName("facility_inspection_checklist.xlsx")
-                .fileType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                .fileSize(256000L) // 250KB
-                .fileContent("XLSX content placeholder".getBytes())
-                .uploadedBy(adminUser)
-                .build(),
-            Document.builder()
-                .title("시설물 사진 - 제1전투비행단")
-                .description("제1전투비행단 시설물 현황 사진입니다.")
-                .fileName("facility_photo_1st_wing.jpg")
-                .fileType("image/jpeg")
-                .fileSize(1024000L) // 1MB
-                .fileContent("JPEG content placeholder".getBytes())
-                .uploadedBy(adminUser)
-                .build(),
-            Document.builder()
-                .title("시설물 수리비 예산 계획서")
-                .description("2024년 시설물 수리비 예산 계획서입니다.")
-                .fileName("facility_repair_budget_2024.pdf")
-                .fileType("application/pdf")
-                .fileSize(3072000L) // 3MB
-                .fileContent("PDF content placeholder".getBytes())
-                .uploadedBy(adminUser)
-                .build(),
-            Document.builder()
-                .title("시설물 관리자 교육 자료")
-                .description("시설물 관리자 교육에 사용되는 교육 자료입니다.")
-                .fileName("facility_manager_training_materials.pptx")
-                .fileType("application/vnd.openxmlformats-officedocument.presentationml.presentation")
-                .fileSize(5120000L) // 5MB
-                .fileContent("PPTX content placeholder".getBytes())
-                .uploadedBy(adminUser)
-                .build(),
-            Document.builder()
-                .title("시설물 점검 결과 보고서 템플릿")
-                .description("시설물 점검 결과 보고서 작성용 템플릿입니다.")
-                .fileName("inspection_report_template.docx")
-                .fileType("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-                .fileSize(384000L) // 375KB
-                .fileContent("DOCX content placeholder".getBytes())
-                .uploadedBy(adminUser)
-                .build(),
-            Document.builder()
-                .title("시설물 유지보수 일정표")
-                .description("2024년 시설물 유지보수 일정표입니다.")
-                .fileName("facility_maintenance_schedule_2024.xlsx")
-                .fileType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                .fileSize(768000L) // 750KB
-                .fileContent("XLSX content placeholder".getBytes())
-                .uploadedBy(adminUser)
-                .build(),
-            Document.builder()
-                .title("시설물 안전 점검 가이드")
-                .description("시설물 안전 점검을 위한 상세 가이드입니다.")
-                .fileName("facility_safety_inspection_guide.pdf")
-                .fileType("application/pdf")
-                .fileSize(4096000L) // 4MB
-                .fileContent("PDF content placeholder".getBytes())
-                .uploadedBy(adminUser)
-                .build()
-        );
-
-        // Save all documents
-        documentRepository.saveAll(sampleDocuments);
-        log.info("Created {} sample documents", sampleDocuments.size());
-    }
 }

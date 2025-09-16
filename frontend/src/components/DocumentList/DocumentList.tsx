@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import Card from "../Card";
 import Button from "../Button";
+import UploadDocumentModal from "../UploadDocumentModal";
 import { useDocuments, useDocumentDownload } from "../../hooks/useDocuments";
+import { useUploadDocument } from "../../hooks/useUploadDocument";
 import "./DocumentList.css";
 
 const DocumentList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0); // 0-based for API
+  const [downloadingIds, setDownloadingIds] = useState<Set<number>>(new Set());
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const itemsPerPage = 5;
   
   const { 
@@ -19,20 +23,48 @@ const DocumentList: React.FC = () => {
     refetch 
   } = useDocuments(currentPage, itemsPerPage);
 
-  const { download, downloading } = useDocumentDownload();
+  const { download } = useDocumentDownload();
+  const { uploadDocument, loading: uploadLoading } = useUploadDocument();
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page - 1); // Convert to 0-based
   };
 
-  const handleDocumentClick = (document: any) => {
+  const handleDocumentClick = async (document: any) => {
     console.log("Document clicked:", document);
-    download(document.id, document.fileName);
+    
+    // Add document ID to downloading set
+    setDownloadingIds(prev => new Set(prev).add(document.id));
+    
+    try {
+      await download(document.id, document.fileName);
+    } finally {
+      // Remove document ID from downloading set
+      setDownloadingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(document.id);
+        return newSet;
+      });
+    }
   };
 
   const handleCreateDocument = () => {
-    console.log("Create document clicked");
-    // TODO: Navigate to document upload page
+    setUploadModalOpen(true);
+  };
+
+  const handleCloseUploadModal = () => {
+    setUploadModalOpen(false);
+  };
+
+  const handleSubmitUploadDocument = async (request: { title: string; description?: string; file: File }) => {
+    try {
+      await uploadDocument(request);
+      // Refresh the documents list after successful upload
+      refetch();
+    } catch (error) {
+      // Error handling is done in the modal
+      throw error;
+    }
   };
 
   const getFileIcon = (fileType: string) => {
@@ -88,16 +120,16 @@ const DocumentList: React.FC = () => {
                 <div className="document-content">
                   <h4 className="document-title">{document.title}</h4>
                   <div className="document-meta">
-                    <span className="document-type">{document.fileType.split('/')[1]?.toUpperCase() || 'FILE'}</span>
-                    <span className="document-size">{document.formattedFileSize}</span>
-                    <span className="document-date">{document.formattedDate}</span>
-                    <span className="document-author">{document.uploaderName}</span>
+                      <span className="document-type">{document.fileType.split('/')[1]?.toUpperCase() || 'FILE'}</span>
+                      <span className="document-size">{document.formattedFileSize}</span>
+                      <span className="document-date">{document.formattedDate}</span>
+                      <span className="document-author">{document.uploaderName}</span>
+                    </div>
                   </div>
+                  {downloadingIds.has(document.id) && (
+                    <div className="document-downloading">다운로드 중...</div>
+                  )}
                 </div>
-                {downloading && (
-                  <div className="document-downloading">다운로드 중...</div>
-                )}
-              </div>
             ))
           )}
         </div>
@@ -139,6 +171,14 @@ const DocumentList: React.FC = () => {
           </div>
         )}
       </Card>
+
+      {/* Upload Document Modal */}
+      <UploadDocumentModal
+        open={uploadModalOpen}
+        onClose={handleCloseUploadModal}
+        onSubmit={handleSubmitUploadDocument}
+        loading={uploadLoading}
+      />
     </div>
   );
 };

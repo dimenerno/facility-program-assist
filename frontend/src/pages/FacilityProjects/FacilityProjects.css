@@ -1,6 +1,6 @@
 .facility-projects {
   min-height: 100vh;
-  background-color: #F3F4F6;
+  background-color: var(--background-color);
   padding: 20px;
 }
 

@@ -2,7 +2,6 @@
 .card {
   background-color: #FFFFFF;
   border-radius: 12px;
-  border: 1px solid #E5E7EB;
   transition: box-shadow 0.2s ease-in-out;
 }
 

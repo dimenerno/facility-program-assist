@@ -6,6 +6,7 @@ export { default as NoticeList } from './NoticeList';
 export { default as DocumentList } from './DocumentList';
 export { default as NoticeDetailModal } from './NoticeDetailModal';
 export { default as CreateNoticeModal } from './CreateNoticeModal';
+export { default as UploadDocumentModal } from './UploadDocumentModal';
 
 // Export types
 export type { ButtonProps, ButtonType } from './Button';

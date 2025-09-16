@@ -127,12 +127,10 @@ export const useDocument = (id: number | null) => {
  * Custom hook for downloading documents
  */
 export const useDocumentDownload = () => {
-  const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const download = async (id: number, fileName: string) => {
     try {
-      setDownloading(true);
       setError(null);
       
       const blob = await downloadDocument(id);
@@ -149,15 +147,15 @@ export const useDocumentDownload = () => {
         window.URL.revokeObjectURL(url);
       } else {
         setError('문서 다운로드에 실패했습니다.');
+        throw new Error('문서 다운로드에 실패했습니다.');
       }
     } catch (err) {
       console.error('Failed to download document:', err);
       setError('문서 다운로드 중 오류가 발생했습니다.');
-    } finally {
-      setDownloading(false);
+      throw err;
     }
   };
 
-  return { download, downloading, error };
+  return { download, error };
 };
 
