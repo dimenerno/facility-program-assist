@@ -1,170 +1,114 @@
 import React, { useState } from "react";
 import Card from "../Card";
 import Button from "../Button";
+import { useDocuments, useDocumentDownload } from "../../hooks/useDocuments";
 import "./DocumentList.css";
 
-interface Document {
-  id: number;
-  title: string;
-  type: string;
-  size: string;
-  date: string;
-  author: string;
-}
-
 const DocumentList: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0); // 0-based for API
   const itemsPerPage = 5;
+  
+  const { 
+    documents, 
+    loading, 
+    error, 
+    totalCount, 
+    totalPages, 
+    hasNext, 
+    hasPrevious,
+    refetch 
+  } = useDocuments(currentPage, itemsPerPage);
 
-  // Mock data - in real app, this would come from API
-  const documents: Document[] = [
-    {
-      id: 1,
-      title: "시설물 관리 매뉴얼 v2.1",
-      type: "PDF",
-      size: "2.3MB",
-      date: "2024-01-15",
-      author: "시스템관리자",
-    },
-    {
-      id: 2,
-      title: "시설물 점검 체크리스트",
-      type: "XLSX",
-      size: "156KB",
-      date: "2024-01-12",
-      author: "시스템관리자",
-    },
-    {
-      id: 3,
-      title: "시설물 안전관리 규정",
-      type: "PDF",
-      size: "1.8MB",
-      date: "2024-01-10",
-      author: "시스템관리자",
-    },
-    {
-      id: 4,
-      title: "시설물 수리비 예산 계획서",
-      type: "XLSX",
-      size: "89KB",
-      date: "2024-01-08",
-      author: "시스템관리자",
-    },
-    {
-      id: 5,
-      title: "시설물 관리 교육 자료",
-      type: "PPTX",
-      size: "5.2MB",
-      date: "2024-01-05",
-      author: "시스템관리자",
-    },
-    {
-      id: 6,
-      title: "시설물 등록 양식",
-      type: "DOCX",
-      size: "45KB",
-      date: "2024-01-03",
-      author: "시스템관리자",
-    },
-    {
-      id: 7,
-      title: "시설물 점검 보고서 템플릿",
-      type: "DOCX",
-      size: "67KB",
-      date: "2024-01-01",
-      author: "시스템관리자",
-    },
-    {
-      id: 8,
-      title: "시설물 유지보수 가이드",
-      type: "PDF",
-      size: "3.1MB",
-      date: "2023-12-28",
-      author: "시스템관리자",
-    },
-    {
-      id: 9,
-      title: "시설물 관리 시스템 사용법",
-      type: "PDF",
-      size: "1.5MB",
-      date: "2023-12-25",
-      author: "시스템관리자",
-    },
-    {
-      id: 10,
-      title: "시설물 분류 기준표",
-      type: "XLSX",
-      size: "234KB",
-      date: "2023-12-20",
-      author: "시스템관리자",
-    },
-  ];
-
-  const totalPages = Math.ceil(documents.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentDocuments = documents.slice(startIndex, endIndex);
+  const { download, downloading } = useDocumentDownload();
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setCurrentPage(page - 1); // Convert to 0-based
   };
 
-  const handleDocumentClick = (document: Document) => {
+  const handleDocumentClick = (document: any) => {
     console.log("Document clicked:", document);
-    // TODO: Download or open document
+    download(document.id, document.fileName);
   };
 
-  const getFileIcon = (type: string) => {
-    switch (type) {
-      case "PDF":
-        return "📄";
-      case "XLSX":
-        return "📊";
-      case "DOCX":
-        return "📝";
-      case "PPTX":
-        return "📋";
-      default:
-        return "📁";
-    }
+  const handleCreateDocument = () => {
+    console.log("Create document clicked");
+    // TODO: Navigate to document upload page
+  };
+
+  const getFileIcon = (fileType: string) => {
+    if (fileType.includes('pdf')) return "📄";
+    if (fileType.includes('excel') || fileType.includes('spreadsheet') || fileType.includes('xlsx')) return "📊";
+    if (fileType.includes('word') || fileType.includes('document') || fileType.includes('docx')) return "📝";
+    if (fileType.includes('presentation') || fileType.includes('powerpoint') || fileType.includes('pptx')) return "📋";
+    if (fileType.includes('image') || fileType.includes('jpeg') || fileType.includes('jpg') || fileType.includes('png')) return "🖼️";
+    return "📁";
   };
 
   return (
     <div className="document-list">
       <Card className="document-card" padding="medium">
         <div className="document-header">
-          <h2 className="document-title">자료실</h2>
-          <span className="document-count">총 {documents.length}건</span>
+          <div className="document-header-left">
+            <h2 className="document-title">자료실</h2>
+            <span className="document-count">
+              총 {loading ? '...' : error ? '0' : totalCount}건
+            </span>
+          </div>
+          <Button
+            type="strong"
+            onClick={handleCreateDocument}
+            className="create-document-btn"
+          >
+            작성
+          </Button>
         </div>
 
         <div className="document-items">
-          {currentDocuments.map((document) => (
-            <div
-              key={document.id}
-              className="document-item"
-              onClick={() => handleDocumentClick(document)}
-            >
-              <div className="document-icon">{getFileIcon(document.type)}</div>
-              <div className="document-content">
-                <h4 className="document-title">{document.title}</h4>
-                <div className="document-meta">
-                  <span className="document-type">{document.type}</span>
-                  <span className="document-size">{document.size}</span>
-                  <span className="document-date">{document.date}</span>
-                  <span className="document-author">{document.author}</span>
-                </div>
+          {loading ? (
+            <div className="document-loading">로딩 중...</div>
+          ) : error ? (
+            <div className="document-error">
+              {error}
+              <div style={{ marginTop: '10px' }}>
+                <Button type="normal" onClick={refetch}>
+                  다시 시도
+                </Button>
               </div>
             </div>
-          ))}
+          ) : documents.length === 0 ? (
+            <div className="document-empty">문서가 없습니다.</div>
+          ) : (
+            documents.map((document) => (
+              <div
+                key={document.id}
+                className="document-item"
+                onClick={() => handleDocumentClick(document)}
+              >
+                <div className="document-icon">{getFileIcon(document.fileType)}</div>
+                <div className="document-content">
+                  <h4 className="document-title">{document.title}</h4>
+                  <div className="document-meta">
+                    <span className="document-type">{document.fileType.split('/')[1]?.toUpperCase() || 'FILE'}</span>
+                    <span className="document-size">{document.formattedFileSize}</span>
+                    <span className="document-date">{document.formattedDate}</span>
+                    <span className="document-author">{document.uploaderName}</span>
+                  </div>
+                </div>
+                {downloading && (
+                  <div className="document-downloading">다운로드 중...</div>
+                )}
+              </div>
+            ))
+          )}
         </div>
 
-        {totalPages > 1 && (
+        {!loading && !error && totalPages > 1 && (
           <div className="document-pagination">
             <Button
               type="normal"
               className="pagination-btn"
-              disabled={currentPage === 1}
-              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={!hasPrevious}
+              onClick={() => handlePageChange(currentPage)}
             >
               이전
             </Button>
@@ -174,7 +118,7 @@ const DocumentList: React.FC = () => {
                 (page) => (
                   <Button
                     key={page}
-                    type={currentPage === page ? "strong" : "normal"}
+                    type={currentPage + 1 === page ? "strong" : "normal"}
                     className="pagination-number"
                     onClick={() => handlePageChange(page)}
                   >
@@ -187,8 +131,8 @@ const DocumentList: React.FC = () => {
             <Button
               type="normal"
               className="pagination-btn"
-              disabled={currentPage === totalPages}
-              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={!hasNext}
+              onClick={() => handlePageChange(currentPage + 2)}
             >
               다음
             </Button>

@@ -1,130 +1,129 @@
 import React, { useState } from "react";
 import Card from "../Card";
 import Button from "../Button";
+import NoticeDetailModal from "../NoticeDetailModal";
+import CreateNoticeModal from "../CreateNoticeModal";
+import { useNotices, useNotice } from "../../hooks/useNotices";
+import { useCreateNotice } from "../../hooks/useCreateNotice";
 import "./NoticeList.css";
 
-interface Notice {
-  id: number;
-  title: string;
-  date: string;
-  author: string;
-}
-
 const NoticeList: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0); // 0-based for API
+  const [selectedNoticeId, setSelectedNoticeId] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const itemsPerPage = 5;
+  
+  const { 
+    notices, 
+    loading, 
+    error, 
+    totalCount, 
+    totalPages, 
+    hasNext, 
+    hasPrevious,
+    refetch 
+  } = useNotices(currentPage, itemsPerPage);
 
-  // Mock data - in real app, this would come from API
-  const notices: Notice[] = [
-    {
-      id: 1,
-      title: "2024년 1분기 시설물 점검 일정 안내",
-      date: "2024-01-15",
-      author: "시스템관리자",
-    },
-    {
-      id: 2,
-      title: "시설물 유지보수 매뉴얼 업데이트",
-      date: "2024-01-12",
-      author: "시스템관리자",
-    },
-    {
-      id: 3,
-      title: "공병관리체계 정기 점검 안내",
-      date: "2024-01-10",
-      author: "시스템관리자",
-    },
-    {
-      id: 4,
-      title: "시설물 안전관리 규정 개정",
-      date: "2024-01-08",
-      author: "시스템관리자",
-    },
-    {
-      id: 5,
-      title: "2024년 시설물 관리 계획",
-      date: "2024-01-05",
-      author: "시스템관리자",
-    },
-    {
-      id: 6,
-      title: "시설물 수리비 예산 배정 안내",
-      date: "2024-01-03",
-      author: "시스템관리자",
-    },
-    {
-      id: 7,
-      title: "겨울철 시설물 관리 주의사항",
-      date: "2024-01-01",
-      author: "시스템관리자",
-    },
-    {
-      id: 8,
-      title: "시설물 점검 결과 보고서",
-      date: "2023-12-28",
-      author: "시스템관리자",
-    },
-    {
-      id: 9,
-      title: "신규 시설물 등록 절차 안내",
-      date: "2023-12-25",
-      author: "시스템관리자",
-    },
-    {
-      id: 10,
-      title: "시설물 관리자 교육 일정",
-      date: "2023-12-20",
-      author: "시스템관리자",
-    },
-  ];
-
-  const totalPages = Math.ceil(notices.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentNotices = notices.slice(startIndex, endIndex);
+  // Hook to fetch individual notice details
+  const { notice: selectedNotice, loading: noticeLoading } = useNotice(selectedNoticeId);
+  
+  // Hook for creating notices
+  const { createNotice, loading: createLoading } = useCreateNotice();
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setCurrentPage(page - 1); // Convert to 0-based
   };
 
-  const handleNoticeClick = (notice: Notice) => {
+  const handleNoticeClick = (notice: any) => {
     console.log("Notice clicked:", notice);
-    // TODO: Navigate to notice detail page
+    setSelectedNoticeId(notice.id);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedNoticeId(null);
+  };
+
+  const handleCreateNotice = () => {
+    setCreateModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setCreateModalOpen(false);
+  };
+
+  const handleSubmitCreateNotice = async (request: { title: string; content: string }) => {
+    try {
+      await createNotice(request);
+      // Refresh the notices list after successful creation
+      refetch();
+    } catch (error) {
+      // Error handling is done in the modal
+      throw error;
+    }
   };
 
   return (
     <div className="notice-list">
       <Card className="notice-card" padding="medium">
         <div className="notice-header">
-          <h2 className="notice-title">공지사항</h2>
-          <span className="notice-count">총 {notices.length}건</span>
+          <div className="notice-header-left">
+            <h2 className="notice-title">공지사항</h2>
+            <span className="notice-count">
+              총 {loading ? '...' : error ? '0' : totalCount}건
+            </span>
+          </div>
+          <Button
+            type="strong"
+            onClick={handleCreateNotice}
+            className="create-notice-btn"
+          >
+            작성
+          </Button>
         </div>
 
         <div className="notice-items">
-          {currentNotices.map((notice) => (
-            <div
-              key={notice.id}
-              className="notice-item"
-              onClick={() => handleNoticeClick(notice)}
-            >
-              <div className="notice-content">
-                <h4 className="notice-title">{notice.title}</h4>
-                <div className="notice-meta">
-                  <span className="notice-date">{notice.date}</span>
-                  <span className="notice-author">{notice.author}</span>
-                </div>
+          {loading ? (
+            <div className="notice-loading">로딩 중...</div>
+          ) : error ? (
+            <div className="notice-error">
+              {error}
+              <div style={{ marginTop: '10px' }}>
+                <Button type="normal" onClick={refetch}>
+                  다시 시도
+                </Button>
               </div>
             </div>
-          ))}
+          ) : notices.length === 0 ? (
+            <div className="notice-empty">공지사항이 없습니다.</div>
+          ) : (
+            notices.map((notice) => (
+              <div
+                key={notice.id}
+                className="notice-item"
+                onClick={() => handleNoticeClick(notice)}
+              >
+                <div className="notice-content">
+                  <h4 className="notice-title">{notice.title}</h4>
+                  <div className="notice-meta">
+                    <span className="notice-date">{notice.formattedDate}</span>
+                    <span className="notice-author">{notice.authorName}</span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
-        {totalPages > 1 && (
+        {!loading && !error && totalPages > 1 && (
           <div className="notice-pagination">
             <Button
               type="normal"
               className="pagination-btn"
-              disabled={currentPage === 1}
-              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={!hasPrevious}
+              onClick={() => handlePageChange(currentPage)}
             >
               이전
             </Button>
@@ -134,7 +133,7 @@ const NoticeList: React.FC = () => {
                 (page) => (
                   <Button
                     key={page}
-                    type={currentPage === page ? "strong" : "normal"}
+                    type={currentPage + 1 === page ? "strong" : "normal"}
                     className="pagination-number"
                     onClick={() => handlePageChange(page)}
                   >
@@ -147,14 +146,30 @@ const NoticeList: React.FC = () => {
             <Button
               type="normal"
               className="pagination-btn"
-              disabled={currentPage === totalPages}
-              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={!hasNext}
+              onClick={() => handlePageChange(currentPage + 2)}
             >
               다음
             </Button>
           </div>
         )}
       </Card>
+
+      {/* Notice Detail Modal */}
+      <NoticeDetailModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        notice={selectedNotice}
+        loading={noticeLoading}
+      />
+
+      {/* Create Notice Modal */}
+      <CreateNoticeModal
+        open={createModalOpen}
+        onClose={handleCloseCreateModal}
+        onSubmit={handleSubmitCreateNotice}
+        loading={createLoading}
+      />
     </div>
   );
 };

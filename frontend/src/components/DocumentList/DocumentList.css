@@ -22,9 +22,53 @@
   border-bottom: 1px solid #E5E7EB;
 }
 
+.document-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .document-count {
   font-size: 12px;
   color: #6B7280;
+  font-weight: 500;
+}
+
+.create-document-btn {
+  min-width: 60px;
+  height: 32px;
+  font-size: 12px;
+  padding: 0 12px;
+}
+
+/* Loading and error states */
+.document-loading,
+.document-error,
+.document-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6B7280;
+  font-size: 14px;
+}
+
+.document-error {
+  color: #EF4444;
+}
+
+.document-empty {
+  color: #9CA3AF;
+}
+
+.document-downloading {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  background-color: #3B82F6;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
   font-weight: 500;
 }
 
@@ -36,6 +80,8 @@
   gap: 8px;
   overflow-y: auto;
   margin-bottom: 15px;
+  padding-top: 0.3em;
+
 }
 
 .document-item {
@@ -48,6 +94,7 @@
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   background-color: #FAFAFA;
+  position: relative;
 }
 
 .document-item:hover {

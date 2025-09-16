@@ -22,10 +22,41 @@
   border-bottom: 1px solid #E5E7EB;
 }
 
+.notice-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .notice-count {
   font-size: 12px;
   color: #6B7280;
   font-weight: 500;
+}
+
+.create-notice-btn {
+  min-width: 60px;
+  height: 32px;
+  font-size: 12px;
+  padding: 0 12px;
+}
+
+/* Loading and error states */
+.notice-loading,
+.notice-error,
+.notice-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6B7280;
+  font-size: 14px;
+}
+
+.notice-error {
+  color: #EF4444;
+}
+
+.notice-empty {
+  color: #9CA3AF;
 }
 
 /* Notice items */
@@ -36,6 +67,7 @@
   gap: 8px;
   overflow-y: auto;
   margin-bottom: 15px;
+  padding-top: 0.3em;
 }
 
 .notice-item {

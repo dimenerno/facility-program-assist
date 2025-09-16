@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"unit", "notices"})
+@ToString(exclude = {"unit", "notices", "documents"})
 public class User {
     
     @Id
@@ -47,4 +47,9 @@ public class User {
     @OneToMany(mappedBy = "writtenBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Notice> notices = new ArrayList<>();
+    
+    // One-to-many relationship with Documents
+    @OneToMany(mappedBy = "uploadedBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Document> documents = new ArrayList<>();
 }
