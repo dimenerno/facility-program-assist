@@ -3,8 +3,10 @@ package com.facilityassist.controller;
 import com.facilityassist.dto.ApiResponse;
 import com.facilityassist.dto.DocumentListResponse;
 import com.facilityassist.dto.DocumentResponse;
+import com.facilityassist.dto.DocumentResponse.DocumentSummary;
 import com.facilityassist.dto.UploadDocumentRequest;
 import com.facilityassist.service.DocumentService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -141,7 +143,7 @@ public class DocumentController {
             log.info("Getting all documents");
             
             // Get all documents and convert to list response format
-            var allDocuments = documentService.getAllDocuments();
+            List<DocumentSummary> allDocuments = documentService.getAllDocuments();
             DocumentListResponse response = DocumentListResponse.builder()
                 .documents(allDocuments)
                 .totalCount(allDocuments.size())

@@ -36,13 +36,14 @@ public class UserService {
             }
             
             Object principal = authentication.getPrincipal();
-            
-            if (principal instanceof UserPrincipal userPrincipal) {
+
+            if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
                 String username = userPrincipal.getUsername();
                 log.debug("Getting user info for username: {}", username);
-                
+
                 return userRepository.findByUsername(username)
-                    .map(this::convertToUserInfoResponse);
+                        .map(this::convertToUserInfoResponse);
             } else {
                 log.warn("Principal is not of type UserPrincipal: {}", principal.getClass().getName());
                 return Optional.empty();

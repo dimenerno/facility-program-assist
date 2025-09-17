@@ -68,14 +68,14 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/h2-console/**", "/api/**")
+                    .ignoringAntMatchers("/h2-console/**", "/api/**")
             )
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/h2-console/**").permitAll()
-                .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers("/api/auth/logout").permitAll()
-                .requestMatchers("/api/units").permitAll() // Allow public access to units for now
-                .requestMatchers("/api/**").authenticated()
+                .antMatchers("/h2-console/**").permitAll()
+                .antMatchers("/api/auth/login").permitAll()
+                .antMatchers("/api/auth/logout").permitAll()
+                .antMatchers("/api/units").permitAll() // Allow public access to units for now
+                .antMatchers("/api/**").authenticated()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

@@ -4,13 +4,16 @@ import com.facilityassist.dto.ApiResponse;
 import com.facilityassist.dto.CreateNoticeRequest;
 import com.facilityassist.dto.NoticeListResponse;
 import com.facilityassist.dto.NoticeResponse;
+import com.facilityassist.dto.NoticeResponse.NoticeSummary;
+import com.facilityassist.model.Notice;
 import com.facilityassist.service.NoticeService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import java.util.Optional;
 
 /**
@@ -103,7 +106,7 @@ public class NoticeController {
             log.info("Getting all notices");
             
             // Get all notices and convert to list response format
-            var allNotices = noticeService.getAllNotices();
+            List<NoticeSummary> allNotices = noticeService.getAllNotices();
             NoticeListResponse response = NoticeListResponse.builder()
                 .notices(allNotices)
                 .totalCount(allNotices.size())
